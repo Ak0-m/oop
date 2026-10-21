@@ -37,6 +37,7 @@ struct Directory
     vector<Directory *> dirs;
 };
 
+// 4. DirectorySize function includes the size of child directoriesg
 uint64_t getDirectorySize(Directory &d)
 {
     uint64_t sz = 0;
@@ -85,12 +86,19 @@ bool addDir(Directory *d_added, Directory &dir)
     return true;
 }
 
-bool moveDir(const string &filename, Directory &from, Directory &to)
+bool moveDir(const string &dirname, Directory &from, Directory &to)
 {
     Directory *dir = nullptr;
+    for (size_t i = 0; i < to.dirs.size() - 1; i++)
+    {
+        if (to.dirs[i]->name == dirname)
+        {
+            return false;
+        }
+    }
     for (size_t i = 0; i < from.dirs.size(); i++)
     {
-        if (filename == from.dirs[i]->name)
+        if (dirname == from.dirs[i]->name)
         {
             dir = from.dirs[i];
             for (size_t j = i; j < from.dirs.size() - 1; j++)
@@ -110,6 +118,13 @@ bool moveDir(const string &filename, Directory &from, Directory &to)
 bool moveFile(const string &filename, Directory &from, Directory &to)
 {
     File *file = nullptr;
+    for (size_t i = 0; i < to.files.size() - 1; i++)
+    {
+        if (to.files[i]->name == filename)
+        {
+            return false;
+        }
+    }
     for (size_t i = 0; i < from.files.size(); i++)
     {
         if (filename == getFullFilename(*from.files[i]))
@@ -128,6 +143,7 @@ bool moveFile(const string &filename, Directory &from, Directory &to)
     return false;
 }
 
+// 1. When printing the directory, print the contents of all child directories!!!
 void printDir(Directory &d, const string &pad = "")
 {
     std::cout << pad << "d: " << d.name << '\n';
@@ -139,9 +155,11 @@ void printDir(Directory &d, const string &pad = "")
     {
         printDir(*d.dirs[i], pad + " ");
     }
-    std::cout <<pad<< "Size: " << getDirectorySize(d) << " B\n";
+    std::cout << pad << "Size: " << getDirectorySize(d) << " B\n";
 }
 
+// 2. Implement 'Up' function that return the parent directory of the current directory
+//    If no parent is available, print '/(root)'
 Directory *Up(Directory &d)
 {
     if (d.parent == nullptr)
